@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Adivinanzas</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            color: #333;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .bubble {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0.5); }
+            50% { transform: translateY(50vh) scale(1); }
+            100% { transform: translateY(-10vh) scale(0.5); }
+        }
+        .boton-navegar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .boton-navegar:hover {
+            background: #e05247;
+            transform: scale(1.1);
+        }
+        .boton-navegar:active {
+            transform: scale(0.9);
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            display: inline-block;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+            max-width: 400px;
+            text-align: center;
+            z-index: 1;
+        }
+        h1 {
+            color: #ff6f61;
+        }
+        .opciones img {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .opciones img:hover {
+            transform: scale(1.1);
+        }
+        #resultado {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <button class="boton-navegar" onclick="window.location.href='index.html'">Ir a la página principal</button>
+    <div class="container">
+        <h1>¡Adivina la Palabra!</h1>
+        <p id="pista"></p>
+        <div class="opciones" id="opciones"></div>
+        <p id="resultado"></p>
+    </div>
+    <script>
+        const adivinanzas = [
+            { pregunta: "Soy amarillo y redondo, me ven en el cielo y doy calor. ¿Qué soy?", respuesta: "sol", imagenes: ["luna.jpg", "estrella.jpg", "sol.jpg"] },
+            { pregunta: "Tengo orejas grandes y trompa larga, soy muy fuerte y vivo en la selva. ¿Quién soy?", respuesta: "elefante", imagenes: ["tigre.jpg", "elefante.jpg", "jirafa.jpg"] },
+            { pregunta: "Brillo en la noche pero no soy sol, aparezco cuando la luna está. ¿Qué soy?", respuesta: "estrella", imagenes: ["estrella.jpg", "nube.jpg", "cometa.jpg"] },
+            { pregunta: "Salto y croo en el estanque, me gusta el agua y los insectos. ¿Quién soy?", respuesta: "rana", imagenes: ["rana.jpg", "pez.jpg", "serpiente.jpg"] },
+            { pregunta: "Sirvo para escribir y borrar. ¿Qué soy?", respuesta: "lápiz", imagenes: ["lápiz.jpg", "goma.jpg", "regla.jpg"] },
+            { pregunta: "Soy el color del cielo y del mar. ¿Qué color soy?", respuesta: "azul", imagenes: ["azul.jpg", "verde.jpg", "rojo.jpg"] },
+            { pregunta: "Soy parte de la familia, soy la mamá de tu mamá. ¿Quién soy?", respuesta: "abuela", imagenes: ["abuela.jpg", "madre.jpg", "tía.jpg"] },
+            { pregunta: "Soy la persona que te lleva a la escuela. ¿Quién soy?", respuesta: "papá", imagenes: ["papá.jpg", "abuelo.jpg", "tío.jpg"] },
+            { pregunta: "Soy el color de las nubes y la nieve. ¿Qué color soy?", respuesta: "blanco", imagenes: ["blanco.jpg", "negro.jpg", "gris.jpg"] },
+            { pregunta: "Soy el color de las manzanas y los tomates. ¿Qué color soy?", respuesta: "rojo", imagenes: ["rojo.jpg", "azul.jpg", "amarillo.jpg"] },
+            { pregunta: "Soy el rey de la selva, con melena y fuerte rugido. ¿Quién soy?", respuesta: "leon", imagenes: ["tigre.jpg", "leon.jpg", "chita.jpg"] },
+            { pregunta: "Soy grande y llevo muchas cosas a la escuela. ¿Qué soy?", respuesta: "mochila", imagenes: ["mochila.jpg", "cartuchera.jpg", "libro.jpg"] },
+            { pregunta: "Se usa en los pies y me amarras con cordones. ¿Qué soy?", respuesta: "zapatos", imagenes: ["zapatos.jpg", "sandalias.jpg", "calcetines.jpg"] },
+            { pregunta: "Sirvo para medir y soy larga. ¿Qué soy?", respuesta: "regla", imagenes: ["regla.jpg", "lápiz.jpg", "cuaderno.jpg"] },
+            { pregunta: "Aquí lavas tu ropa y tiene una lavadora. ¿Qué soy?", respuesta: "lavadero", imagenes: ["lavadero.jpg", "sótano.jpg", "ático.jpg"] },
+            { pregunta: "Es el lugar donde comes con tu familia. ¿Qué soy?", respuesta: "comedor", imagenes: ["comedor.jpg", "sala.jpg", "cocina.jpg"] }
+        ];
+
+        function cargarNuevaAdivinanza() {
+            let adivinanzaActual = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
+            document.getElementById("pista").textContent = adivinanzaActual.pregunta;
+            let opcionesDiv = document.getElementById("opciones");
+            opcionesDiv.innerHTML = "";
+            
+            adivinanzaActual.imagenes.forEach((imagen) => {
+                let img = document.createElement("img");
+                img.src = imagen;
+                img.onclick = function() {
+                    verificarRespuesta(imagen, adivinanzaActual);
+                };
+                opcionesDiv.appendChild(img);
+            });
+        }
+
+        function verificarRespuesta(src, adivinanza) {
+            let correcta = adivinanza.imagenes.find(img => img.includes(adivinanza.respuesta));
+            let resultado = document.getElementById("resultado");
+            if (src.includes(adivinanza.respuesta)) {
+                resultado.textContent = "¡Correcto! 🎉";
+                resultado.style.color = "green";
+                setTimeout(cargarNuevaAdivinanza, 1000);
+            } else {
+                resultado.textContent = "Intenta de nuevo ❌";
+                resultado.style.color = "red";
+            }
+        }
+
+        function crearBurbujas() {
+            for (let i = 0; i < 20; i++) {
+                let burbuja = document.createElement("div");
+                burbuja.className = "bubble";
+                burbuja.style.left = `${Math.random() * 100}vw`;
+                burbuja.style.animationDuration = `${5 + Math.random() * 10}s`;
+                document.body.appendChild(burbuja);
+            }
+        }
+        crearBurbujas();
+        cargarNuevaAdivinanza();
+    </script>
+</body>
+</html>
